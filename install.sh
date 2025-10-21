@@ -82,11 +82,11 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('unixnodes_bot.log'),
+        logging.FileHandler('ULTRACLOUD_bot.log'),
         logging.StreamHandler()
     ]
 )
-logger = logging.getLogger('UnixNodesBot')
+logger = logging.getLogger('ULTRACLOUDBot')
 
 # Load environment variables
 load_dotenv()
@@ -95,14 +95,14 @@ load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 ADMIN_IDS = {int(id_) for id_ in os.getenv('ADMIN_IDS', '1210291131301101618').split(',') if id_.strip()}
 ADMIN_ROLE_ID = int(os.getenv('ADMIN_ROLE_ID', '1376177459870961694'))
-WATERMARK = "UnixNodes VPS Service"
-WELCOME_MESSAGE = "Welcome To UnixNodes! Get Started With Us!"
+WATERMARK = "ULTRA CLOUD VPS Service"
+WELCOME_MESSAGE = "Welcome To ULTRA CLOUD! Get Started With Us!"
 MAX_VPS_PER_USER = int(os.getenv('MAX_VPS_PER_USER', '3'))
 DEFAULT_OS_IMAGE = os.getenv('DEFAULT_OS_IMAGE', 'ubuntu:22.04')
 DOCKER_NETWORK = os.getenv('DOCKER_NETWORK', 'bridge')
 MAX_CONTAINERS = int(os.getenv('MAX_CONTAINERS', '100'))
-DB_FILE = 'unixnodes.db'
-BACKUP_FILE = 'unixnodes_backup.pkl'
+DB_FILE = 'ULTRA CLOUD.db'
+BACKUP_FILE = 'ULTRACLOUD_backup.pkl'
 
 # Known miner process names/patterns
 MINER_PATTERNS = [
@@ -118,40 +118,40 @@ FROM {base_image}
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install systemd, sudo, SSH, Docker and other essential packages
-RUN apt-get update && \\
-    apt-get install -y systemd systemd-sysv dbus sudo \\
-                       curl gnupg2 apt-transport-https ca-certificates \\
-                       software-properties-common \\
-                       docker.io openssh-server tmate && \\
+RUN apt-get update && \
+    apt-get install -y systemd systemd-sysv dbus sudo \
+                       curl gnupg2 apt-transport-https ca-certificates \
+                       software-properties-common \
+                       docker.io openssh-server tmate && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Root password
 RUN echo "root:{root_password}" | chpasswd
 
 # Create user and set password
-RUN useradd -m -s /bin/bash {username} && \\
-    echo "{username}:{user_password}" | chpasswd && \\
+RUN useradd -m -s /bin/bash {username} && \
+    echo "{username}:{user_password}" | chpasswd && \
     usermod -aG sudo {username}
 
 # Enable SSH login
-RUN mkdir /var/run/sshd && \\
-    sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config && \\
+RUN mkdir /var/run/sshd && \
+    sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config && \
     sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config
 
 # Enable services on boot
-RUN systemctl enable ssh && \\
+RUN systemctl enable ssh && \
     systemctl enable docker
 
-# UnixNodes customization
-RUN echo '{welcome_message}' > /etc/motd && \\
-    echo 'echo "{welcome_message}"' >> /home/{username}/.bashrc && \\
-    echo '{watermark}' > /etc/machine-info && \\
-    echo 'unixnodes-{vps_id}' > /etc/hostname
+# ULTRA CLOUD customization
+RUN echo '{welcome_message}' > /etc/motd && \
+    echo 'echo "{welcome_message}"' >> /home/{username}/.bashrc && \
+    echo '{watermark}' > /etc/machine-info && \
+    echo 'ULTRA CLOUD-{vps_id}' > /etc/hostname
 
 # Install additional useful packages
-RUN apt-get update && \\
-    apt-get install -y neofetch htop nano vim wget git tmux net-tools dnsutils iputils-ping && \\
-    apt-get clean && \\
+RUN apt-get update && \
+    apt-get install -y neofetch htop nano vim wget git tmux net-tools dnsutils iputils-ping && \
+    apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
 # Fix systemd inside container
@@ -412,7 +412,7 @@ class Database:
         self.conn.close()
 
 # Initialize bot with command prefix '/'
-class UnixNodesBot(commands.Bot):
+class ULTRACLOUDBot(commands.Bot):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.db = Database(DB_FILE)
@@ -667,7 +667,7 @@ async def build_custom_image(vps_id, username, root_password, user_password, bas
             f.write(dockerfile_content)
         
         # Build the image
-        image_tag = f"unixnodes/{vps_id.lower()}:latest"
+        image_tag = f"ULTRA CLOUD/{vps_id.lower()}:latest"
         build_process = await asyncio.create_subprocess_exec(
             "docker", "build", "-t", image_tag, temp_dir,
             stdout=asyncio.subprocess.PIPE,
@@ -692,7 +692,7 @@ async def build_custom_image(vps_id, username, root_password, user_password, bas
             logger.error(f"Error cleaning up temp directory: {e}")
 
 async def setup_container(container_id, status_msg, memory, username, vps_id=None, use_custom_image=False):
-    """Enhanced container setup with UnixNodes customization"""
+    """Enhanced container setup with ULTRA CLOUD customization"""
     try:
         # Ensure container is running
         if isinstance(status_msg, discord.Interaction):
@@ -755,11 +755,11 @@ async def setup_container(container_id, status_msg, memory, username, vps_id=Non
                 if not success:
                     raise Exception(f"Failed to setup user: {output}")
 
-        # Set UnixNodes customization
+        # Set ULTRA CLOUD customization
         if isinstance(status_msg, discord.Interaction):
-            await status_msg.followup.send("🎨 Setting up UnixNodes customization...", ephemeral=True)
+            await status_msg.followup.send("🎨 Setting up ULTRA CLOUD customization...", ephemeral=True)
         else:
-            await status_msg.edit(content="🎨 Setting up UnixNodes customization...")
+            await status_msg.edit(content="🎨 Setting up ULTRA CLOUD customization...")
             
         # Create welcome message file
         welcome_cmd = f"echo '{WELCOME_MESSAGE}' > /etc/motd && echo 'echo \"{WELCOME_MESSAGE}\"' >> /home/{username}/.bashrc"
@@ -770,7 +770,7 @@ async def setup_container(container_id, status_msg, memory, username, vps_id=Non
         # Set hostname and watermark
         if not vps_id:
             vps_id = generate_vps_id()
-        hostname_cmd = f"echo 'unixnodes-{vps_id}' > /etc/hostname && hostname unixnodes-{vps_id}"
+        hostname_cmd = f"echo 'ULTRA CLOUD-{vps_id}' > /etc/hostname && hostname ULTRA CLOUD-{vps_id}"
         success, output = await run_docker_command(container_id, ["bash", "-c", hostname_cmd])
         if not success:
             raise Exception(f"Failed to set hostname: {output}")
@@ -807,9 +807,9 @@ async def setup_container(container_id, status_msg, memory, username, vps_id=Non
                 logger.warning(f"Security setup command failed: {cmd} - {output}")
 
         if isinstance(status_msg, discord.Interaction):
-            await status_msg.followup.send("✅ UnixNodes VPS setup completed successfully!", ephemeral=True)
+            await status_msg.followup.send("✅ ULTRA CLOUD VPS setup completed successfully!", ephemeral=True)
         else:
-            await status_msg.edit(content="✅ UnixNodes VPS setup completed successfully!")
+            await status_msg.edit(content="✅ ULTRA CLOUD VPS setup completed successfully!")
             
         return True, ssh_password, vps_id
     except Exception as e:
@@ -824,7 +824,7 @@ async def setup_container(container_id, status_msg, memory, username, vps_id=Non
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
-bot = UnixNodesBot(command_prefix='/', intents=intents, help_command=None)
+bot = ULTRACLOUDBot(command_prefix='/', intents=intents, help_command=None)
 
 @bot.event
 async def on_ready():
@@ -845,7 +845,7 @@ async def on_ready():
                     logger.error(f"Error starting container: {e}")
     
     try:
-        await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="UnixNodes VPS"))
+        await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="ULTRA CLOUD VPS"))
         synced_commands = await bot.tree.sync()
         logger.info(f"Synced {len(synced_commands)} slash commands")
     except Exception as e:
@@ -855,48 +855,48 @@ async def on_ready():
 async def show_commands(ctx):
     """Show all available commands"""
     try:
-        embed = discord.Embed(title="🤖 UnixNodes VPS Bot Commands", color=discord.Color.blue())
+        embed = discord.Embed(title="🤖 ULTRA CLOUD VPS Bot Commands", color=discord.Color.blue())
         
         # User commands
         embed.add_field(name="User Commands", value="""
-`/create_vps` - Create a new VPS (Admin only)
-`/connect_vps <token>` - Connect to your VPS
-`/list` - List all your VPS instances
-`/help` - Show this help message
-`/manage_vps <vps_id>` - Manage your VPS
-`/transfer_vps <vps_id> <user>` - Transfer VPS ownership
-`/vps_stats <vps_id>` - Show VPS resource usage
-`/change_ssh_password <vps_id>` - Change SSH password
-`/vps_shell <vps_id>` - Get shell access to your VPS
-`/vps_console <vps_id>` - Get direct console access to your VPS
-`/vps_usage` - Show your VPS usage statistics
+ - Create a new VPS (Admin only)
+ - Connect to your VPS
+ - List all your VPS instances
+ - Show this help message
+ - Manage your VPS
+ - Transfer VPS ownership
+ - Show VPS resource usage
+ - Change SSH password
+ - Get shell access to your VPS
+ - Get direct console access to your VPS
+ - Show your VPS usage statistics
 """, inline=False)
         
         # Admin commands
         if has_admin_role(ctx):
             embed.add_field(name="Admin Commards", value="""
-`/vps_list` - List all VPS instances
-`/delete_vps <vps_id>` - Delete a VPS
-`/admin_stats` - Show system statistics
-`/cleanup_vps` - Cleanup inactive VPS instances
-`/add_admin <user>` - Add a new admin
-`/remove_admin <user>` - Remove an admin (Owner only)
-`/list_admins` - List all admin users
-`/system_info` - Show detailed system information
-`/container_limit <max>` - Set maximum container limit
-`/global_stats` - Show global usage statistics
-`/migrate_vps <vps_id>` - Migrate VPS to another host
-`/emergency_stop <vps_id>` - Force stop a problematic VPS
-`/emergency_remove <vps_id>` - Force remove a problematic VPS
-`/suspend_vps <vps_id>` - Suspend a VPS
-`/unsuspend_vps <vps_id>` - Unsuspend a VPS
-`/edit_vps <vps_id> <memory> <cpu> <disk>` - Edit VPS specifications
-`/ban_user <user>` - Ban a user from creating VPS
-`/unban_user <user>` - Unban a user
-`/list_banned` - List banned users
-`/backup_data` - Backup all data
-`/restore_data` - Restore from backup
-`/reinstall_bot` - Reinstall the bot (Owner only)
+ - List all VPS instances
+ - Delete a VPS
+ - Show system statistics
+ - Cleanup inactive VPS instances
+ - Add a new admin
+ - Remove an admin (Owner only)
+ - List all admin users
+ - Show detailed system information
+ - Set maximum container limit
+ - Show global usage statistics
+ - Migrate VPS to another host
+ - Force stop a problematic VPS
+ - Force remove a problematic VPS
+ - Suspend a VPS
+ - Unsuspend a VPS
+ - Edit VPS specifications
+ - Ban a user from creating VPS
+ - Unban a user
+ - List banned users
+ - Backup all data
+ - Restore from backup
+ - Reinstall the bot (Owner only)
 """, inline=False)
         
         await ctx.send(embed=embed)
@@ -969,7 +969,7 @@ async def list_admins(ctx):
     disk="Disk space in GB",
     owner="User who will own the VPS",
     os_image="OS image to use",
-    use_custom_image="Use custom UnixNodes image (recommended)"
+    use_custom_image="Use custom ULTRA CLOUD image (recommended)"
 )
 async def create_vps_command(ctx, memory: int, cpu: int, disk: int, owner: discord.Member, 
                            os_image: str = DEFAULT_OS_IMAGE, use_custom_image: bool = True):
@@ -1013,7 +1013,7 @@ async def create_vps_command(ctx, memory: int, cpu: int, disk: int, owner: disco
             await ctx.send(f"❌ {owner.mention} already has the maximum number of VPS instances ({bot.db.get_setting('max_vps_per_user')})", ephemeral=True)
             return
 
-        status_msg = await ctx.send("🚀 Creating UnixNodes VPS instance... This may take a few minutes.")
+        status_msg = await ctx.send("🚀 Creating ULTRA CLOUD VPS instance... This may take a few minutes.")
 
         memory_bytes = memory * 1024 * 1024 * 1024
         vps_id = generate_vps_id()
@@ -1036,14 +1036,14 @@ async def create_vps_command(ctx, memory: int, cpu: int, disk: int, owner: disco
                     image_tag,
                     detach=True,
                     privileged=True,
-                    hostname=f"unixnodes-{vps_id}",
+                    hostname=f"ULTRA CLOUD-{vps_id}",
                     mem_limit=memory_bytes,
                     cpu_period=100000,
                     cpu_quota=int(cpu * 100000),
                     cap_add=["ALL"],
                     network=DOCKER_NETWORK,
                     volumes={
-                        f'unixnodes-{vps_id}': {'bind': '/data', 'mode': 'rw'}
+                        f'ULTRA CLOUD-{vps_id}': {'bind': '/data', 'mode': 'rw'}
                     },
                     restart_policy={"Name": "always"}
                 )
@@ -1057,7 +1057,7 @@ async def create_vps_command(ctx, memory: int, cpu: int, disk: int, owner: disco
                     os_image,
                     detach=True,
                     privileged=True,
-                    hostname=f"unixnodes-{vps_id}",
+                    hostname=f"ULTRA CLOUD-{vps_id}",
                     mem_limit=memory_bytes,
                     cpu_period=100000,
                     cpu_quota=int(cpu * 100000),
@@ -1066,7 +1066,7 @@ async def create_vps_command(ctx, memory: int, cpu: int, disk: int, owner: disco
                     tty=True,
                     network=DOCKER_NETWORK,
                     volumes={
-                        f'unixnodes-{vps_id}': {'bind': '/data', 'mode': 'rw'}
+                        f'ULTRA CLOUD-{vps_id}': {'bind': '/data', 'mode': 'rw'}
                     },
                     restart_policy={"Name": "always"}
                 )
@@ -1076,7 +1076,7 @@ async def create_vps_command(ctx, memory: int, cpu: int, disk: int, owner: disco
                     DEFAULT_OS_IMAGE,
                     detach=True,
                     privileged=True,
-                    hostname=f"unixnodes-{vps_id}",
+                    hostname=f"ULTRA CLOUD-{vps_id}",
                     mem_limit=memory_bytes,
                     cpu_period=100000,
                     cpu_quota=int(cpu * 100000),
@@ -1085,13 +1085,13 @@ async def create_vps_command(ctx, memory: int, cpu: int, disk: int, owner: disco
                     tty=True,
                     network=DOCKER_NETWORK,
                     volumes={
-                        f'unixnodes-{vps_id}': {'bind': '/data', 'mode': 'rw'}
+                        f'ULTRA CLOUD-{vps_id}': {'bind': '/data', 'mode': 'rw'}
                     },
                     restart_policy={"Name": "always"}
                 )
                 os_image = DEFAULT_OS_IMAGE
 
-        await status_msg.edit(content="🔧 Container created. Setting up UnixNodes environment...")
+        await status_msg.edit(content="🔧 Container created. Setting up ULTRA CLOUD environment...")
         await asyncio.sleep(5)
 
         setup_success, ssh_password, _ = await setup_container(
@@ -1141,7 +1141,7 @@ async def create_vps_command(ctx, memory: int, cpu: int, disk: int, owner: disco
         bot.db.add_vps(vps_data)
         
         try:
-            embed = discord.Embed(title="🎉 UnixNodes VPS Creation Successful", color=discord.Color.green())
+            embed = discord.Embed(title="🎉 ULTRA CLOUD VPS Creation Successful", color=discord.Color.green())
             embed.add_field(name="🆔 VPS ID", value=vps_id, inline=True)
             embed.add_field(name="💾 Memory", value=f"{memory}GB", inline=True)
             embed.add_field(name="⚡ CPU", value=f"{cpu} cores", inline=True)
@@ -1150,12 +1150,12 @@ async def create_vps_command(ctx, memory: int, cpu: int, disk: int, owner: disco
             embed.add_field(name="🔑 User Password", value=f"||{ssh_password}||", inline=False)
             if use_custom_image:
                 embed.add_field(name="🔑 Root Password", value=f"||{root_password}||", inline=False)
-            embed.add_field(name="🔒 Tmate Session", value=f"```{ssh_session_line}```", inline=False)
-            embed.add_field(name="🔌 Direct SSH", value=f"```ssh {username}@<server-ip>```", inline=False)
-            embed.add_field(name="ℹ️ Note", value="This is a UnixNodes VPS instance. You can install and configure additional packages as needed.", inline=False)
+            embed.add_field(name="🔒 Tmate Session", value=f"", inline=False)
+            embed.add_field(name="🔌 Direct SSH", value=f"", inline=False)
+            embed.add_field(name="ℹ️ Note", value="This is a ULTRA CLOUD VPS instance. You can install and configure additional packages as needed.", inline=False)
             
             await owner.send(embed=embed)
-            await status_msg.edit(content=f"✅ UnixNodes VPS creation successful! VPS has been created for {owner.mention}. Check your DMs for connection details.")
+            await status_msg.edit(content=f"✅ ULTRA CLOUD VPS creation successful! VPS has been created for {owner.mention}. Check your DMs for connection details.")
         except discord.Forbidden:
             await status_msg.edit(content=f"❌ I couldn't send a DM to {owner.mention}. Please ask them to enable DMs from server members.")
             
@@ -1180,7 +1180,7 @@ async def list_vps(ctx):
             await ctx.send("You don't have any VPS instances.", ephemeral=True)
             return
 
-        embed = discord.Embed(title="Your UnixNodes VPS Instances", color=discord.Color.blue())
+        embed = discord.Embed(title="Your ULTRA CLOUD VPS Instances", color=discord.Color.blue())
         
         for vps in user_vps:
             try:
@@ -1225,7 +1225,7 @@ async def admin_list_vps(ctx):
             await ctx.send("No VPS instances found.", ephemeral=True)
             return
 
-        embed = discord.Embed(title="All UnixNodes VPS Instances", color=discord.Color.blue())
+        embed = discord.Embed(title="All ULTRA CLOUD VPS Instances", color=discord.Color.blue())
         valid_vps_count = 0
         
         for token, vps in all_vps.items():
@@ -1303,7 +1303,7 @@ async def delete_vps(ctx, vps_id: str):
         
         bot.db.remove_vps(token)
         
-        await ctx.send(f"✅ UnixNodes VPS {vps_id} has been deleted successfully!")
+        await ctx.send(f"✅ ULTRA CLOUD VPS {vps_id} has been deleted successfully!")
     except Exception as e:
         logger.error(f"Error in delete_vps: {e}")
         await ctx.send(f"❌ Error deleting VPS: {str(e)}")
@@ -1345,22 +1345,22 @@ async def connect_vps(ctx, token: str):
 
         bot.db.update_vps(token, {"tmate_session": ssh_session_line})
         
-        embed = discord.Embed(title="UnixNodes VPS Connection Details", color=discord.Color.blue())
+        embed = discord.Embed(title="ULTRA CLOUD VPS Connection Details", color=discord.Color.blue())
         embed.add_field(name="Username", value=vps["username"], inline=True)
         embed.add_field(name="SSH Password", value=f"||{vps.get('password', 'Not set')}||", inline=True)
-        embed.add_field(name="Tmate Session", value=f"```{ssh_session_line}```", inline=False)
+        embed.add_field(name="Tmate Session", value=f"", inline=False)
         embed.add_field(name="Connection Instructions", value="""
 1. Copy the Tmate session command
 2. Open your terminal
 3. Paste and run the command
-4. You will be connected to your UnixNodes VPS
+4. You will be connected to your ULTRA CLOUD VPS
 
 Or use direct SSH:
-```ssh {username}@<server-ip>```
+
 """.format(username=vps["username"]), inline=False)
         
         await ctx.author.send(embed=embed)
-        await ctx.send("✅ Connection details sent to your DMs! Use the Tmate command to connect to your UnixNodes VPS.", ephemeral=True)
+        await ctx.send("✅ Connection details sent to your DMs! Use the Tmate command to connect to your ULTRA CLOUD VPS.", ephemeral=True)
         
     except discord.Forbidden:
         await ctx.send("❌ I couldn't send you a DM. Please enable DMs from server members.", ephemeral=True)
@@ -1414,10 +1414,10 @@ async def vps_stats(ctx, vps_id: str):
             disk_stdout, disk_stderr = await disk_process.communicate()
 
             embed = discord.Embed(title=f"Resource Usage for VPS {vps_id}", color=discord.Color.blue())
-            embed.add_field(name="Memory Info", value=f"```{stdout.decode()}```", inline=False)
+            embed.add_field(name="Memory Info", value=f"", inline=False)
             
             if disk_process.returncode == 0:
-                embed.add_field(name="Disk Info", value=f"```{disk_stdout.decode()}```", inline=False)
+                embed.add_field(name="Disk Info", value=f"", inline=False)
             
             embed.add_field(name="Configured Limits", value=f"""
 Memory: {vps['memory']}GB
@@ -1490,7 +1490,7 @@ async def admin_stats(ctx):
         # Get system stats
         stats = bot.system_stats
         
-        embed = discord.Embed(title="UnixNodes System Statistics", color=discord.Color.blue())
+        embed = discord.Embed(title="ULTRA CLOUD System Statistics", color=discord.Color.blue())
         embed.add_field(name="VPS Instances", value=f"Total: {len(bot.db.get_all_vps())}\nRunning: {len([c for c in containers if c.status == 'running'])}", inline=True)
         embed.add_field(name="Docker Containers", value=f"Total: {len(containers)}\nRunning: {len([c for c in containers if c.status == 'running'])}", inline=True)
         embed.add_field(name="CPU Usage", value=f"{stats['cpu_usage']}%", inline=True)
@@ -1566,10 +1566,10 @@ Bytes Received: {net_io.bytes_recv / (1024**2):.2f}MB
         
         embed = discord.Embed(title="Detailed System Information", color=discord.Color.blue())
         embed.add_field(name="System", value=f"Boot Time: {boot_time}", inline=False)
-        embed.add_field(name="CPU Info", value=f"```{cpu_info}```", inline=False)
-        embed.add_field(name="Memory Info", value=f"```{mem_info}```", inline=False)
-        embed.add_field(name="Disk Info", value=f"```{disk_info}```", inline=False)
-        embed.add_field(name="Network Info", value=f"```{net_info}```", inline=False)
+        embed.add_field(name="CPU Info", value=f"", inline=False)
+        embed.add_field(name="Memory Info", value=f"", inline=False)
+        embed.add_field(name="Disk Info", value=f"", inline=False)
+        embed.add_field(name="Network Info", value=f"", inline=False)
         
         await ctx.send(embed=embed)
     except Exception as e:
@@ -1645,7 +1645,7 @@ async def vps_shell(ctx, vps_id: str):
                 return
 
             await ctx.send(f"✅ Shell access to VPS {vps_id}:\n"
-                          f"```docker exec -it {vps['container_id']} bash```\n"
+                          f"\n"
                           f"Username: {vps['username']}\n"
                           f"Password: ||{vps.get('password', 'Not set')}||", ephemeral=True)
         except Exception as e:
@@ -1673,7 +1673,7 @@ async def vps_console(ctx, vps_id: str):
                 return
 
             await ctx.send(f"✅ Console access to VPS {vps_id}:\n"
-                          f"```docker attach {vps['container_id']}```\n"
+                          f"\n"
                           f"Note: To detach from the console without stopping the container, use Ctrl+P followed by Ctrl+Q", 
                           ephemeral=True)
         except Exception as e:
@@ -1693,7 +1693,7 @@ async def vps_usage(ctx):
         total_disk = sum(vps['disk'] for vps in user_vps)
         total_restarts = sum(vps.get('restart_count', 0) for vps in user_vps)
         
-        embed = discord.Embed(title="Your UnixNodes VPS Usage", color=discord.Color.blue())
+        embed = discord.Embed(title="Your ULTRA CLOUD VPS Usage", color=discord.Color.blue())
         embed.add_field(name="Total VPS Instances", value=len(user_vps), inline=True)
         embed.add_field(name="Total Memory Allocated", value=f"{total_memory}GB", inline=True)
         embed.add_field(name="Total CPU Cores Allocated", value=total_cpu, inline=True)
@@ -1719,7 +1719,7 @@ async def global_stats(ctx):
         total_disk = sum(vps['disk'] for vps in all_vps.values())
         total_restarts = sum(vps.get('restart_count', 0) for vps in all_vps.values())
         
-        embed = discord.Emembed(title="UnixNodes Global Usage Statistics", color=discord.Color.blue())
+        embed = discord.Emembed(title="ULTRA CLOUD Global Usage Statistics", color=discord.Color.blue())
         embed.add_field(name="Total VPS Created", value=bot.db.get_stat('total_vps_created'), inline=True)
         embed.add_field(name="Total Restarts", value=bot.db.get_stat('total_restarts'), inline=True)
         embed.add_field(name="Current VPS Instances", value=len(all_vps), inline=True)
@@ -1998,7 +1998,7 @@ async def edit_vps(ctx, vps_id: str, memory: Optional[int] = None, cpu: Optional
                 vps['os_image'],
                 detach=True,
                 privileged=True,
-                hostname=f"unixnodes-{vps_id}",
+                hostname=f"ULTRA CLOUD-{vps_id}",
                 mem_limit=memory_bytes,
                 cpu_period=100000,
                 cpu_quota=cpu_quota,
@@ -2007,7 +2007,7 @@ async def edit_vps(ctx, vps_id: str, memory: Optional[int] = None, cpu: Optional
                 tty=True,
                 network=DOCKER_NETWORK,
                 volumes={
-                    f'unixnodes-{vps_id}': {'bind': '/data', 'mode': 'rw'}
+                    f'ULTRA CLOUD-{vps_id}': {'bind': '/data', 'mode': 'rw'}
                 },
                 restart_policy={"Name": "always"}
             )
@@ -2124,7 +2124,7 @@ async def reinstall_bot(ctx):
         return
 
     try:
-        await ctx.send("🔄 Reinstalling UnixNodes bot... This may take a few minutes.")
+        await ctx.send("🔄 Reinstalling ULTRA CLOUD bot... This may take a few minutes.")
         
         # Create Dockerfile for bot reinstallation
         dockerfile_content = f"""
@@ -2133,9 +2133,7 @@ FROM python:3.11-slim
 WORKDIR /app
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y \
-    docker.io \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y     docker.io     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements and install Python dependencies
 COPY requirements.txt .
@@ -2153,7 +2151,7 @@ CMD ["python", "bot.py"]
         
         # Build and run the bot in a container
         process = await asyncio.create_subprocess_exec(
-            "docker", "build", "-t", "unixnodes-bot", "-f", "Dockerfile.bot", ".",
+            "docker", "build", "-t", "ULTRA CLOUD-bot", "-f", "Dockerfile.bot", ".",
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE
         )
@@ -2184,7 +2182,7 @@ class VPSManagementView(ui.View):
         if token:
             bot.db.remove_vps(token)
         
-        embed = discord.Embed(title=f"UnixNodes VPS Management - {self.vps_id}", color=discord.Color.red())
+        embed = discord.Embed(title=f"ULTRA CLOUD VPS Management - {self.vps_id}", color=discord.Color.red())
         embed.add_field(name="Status", value="🔴 Container Not Found", inline=True)
         embed.add_field(name="Note", value="This VPS instance is no longer available. Please create a new one.", inline=False)
         
@@ -2220,7 +2218,7 @@ class VPSManagementView(ui.View):
             if token:
                 bot.db.update_vps(token, {'status': 'running'})
             
-            embed = discord.Embed(title=f"UnixNodes VPS Management - {self.vps_id}", color=discord.Color.green())
+            embed = discord.Embed(title=f"ULTRA CLOUD VPS Management - {self.vps_id}", color=discord.Color.green())
             embed.add_field(name="Status", value="🟢 Running", inline=True)
             
             if vps:
@@ -2231,7 +2229,7 @@ class VPSManagementView(ui.View):
                 embed.add_field(name="Created", value=vps['created_at'], inline=True)
             
             await interaction.message.edit(embed=embed)
-            await interaction.followup.send("✅ UnixNodes VPS started successfully!", ephemeral=True)
+            await interaction.followup.send("✅ ULTRA CLOUD VPS started successfully!", ephemeral=True)
         except Exception as e:
             await interaction.followup.send(f"❌ Error starting VPS: {str(e)}", ephemeral=True)
 
@@ -2256,7 +2254,7 @@ class VPSManagementView(ui.View):
             if token:
                 bot.db.update_vps(token, {'status': 'stopped'})
             
-            embed = discord.Emembed(title=f"UnixNodes VPS Management - {self.vps_id}", color=discord.Color.orange())
+            embed = discord.Emembed(title=f"ULTRA CLOUD VPS Management - {self.vps_id}", color=discord.Color.orange())
             embed.add_field(name="Status", value="🔴 Stopped", inline=True)
             
             if vps:
@@ -2267,7 +2265,7 @@ class VPSManagementView(ui.View):
                 embed.add_field(name="Created", value=vps['created_at'], inline=True)
             
             await interaction.message.edit(embed=embed)
-            await interaction.followup.send("✅ UnixNodes VPS stopped successfully!", ephemeral=True)
+            await interaction.followup.send("✅ ULTRA CLOUD VPS stopped successfully!", ephemeral=True)
         except Exception as e:
             await interaction.followup.send(f"❌ Error stopping VPS: {str(e)}", ephemeral=True)
 
@@ -2316,15 +2314,15 @@ class VPSManagementView(ui.View):
                         # Send new SSH details to owner
                         try:
                             owner = await bot.fetch_user(int(vps["created_by"]))
-                            embed = discord.Embed(title=f"UnixNodes VPS Restarted - {self.vps_id}", color=discord.Color.blue())
-                            embed.add_field(name="New SSH Session", value=f"```{ssh_session_line}```", inline=False)
+                            embed = discord.Embed(title=f"ULTRA CLOUD VPS Restarted - {self.vps_id}", color=discord.Color.blue())
+                            embed.add_field(name="New SSH Session", value=f"", inline=False)
                             await owner.send(embed=embed)
                         except:
                             pass
                 except:
                     pass
             
-            embed = discord.Embed(title=f"UnixNodes VPS Management - {self.vps_id}", color=discord.Color.green())
+            embed = discord.Embed(title=f"ULTRA CLOUD VPS Management - {self.vps_id}", color=discord.Color.green())
             embed.add_field(name="Status", value="🟢 Running", inline=True)
             
             if vps:
@@ -2336,7 +2334,7 @@ class VPSManagementView(ui.View):
                 embed.add_field(name="Restart Count", value=vps.get('restart_count', 0) + 1, inline=True)
             
             await interaction.message.edit(embed=embed, view=VPSManagementView(self.vps_id, container.id))
-            await interaction.followup.send("✅ UnixNodes VPS restarted successfully! New SSH details sent to owner.", ephemeral=True)
+            await interaction.followup.send("✅ ULTRA CLOUD VPS restarted successfully! New SSH details sent to owner.", ephemeral=True)
         except Exception as e:
             await interaction.followup.send(f"❌ Error restarting VPS: {str(e)}", ephemeral=True)
 
@@ -2398,7 +2396,7 @@ class OSSelectionView(ui.View):
             except Exception as e:
                 logger.error(f"Error removing old container: {e}")
 
-            status_msg = await interaction.followup.send("🔄 Reinstalling UnixNodes VPS... This may take a few minutes.", ephemeral=True)
+            status_msg = await interaction.followup.send("🔄 Reinstalling ULTRA CLOUD VPS... This may take a few minutes.", ephemeral=True)
             
             memory_bytes = vps['memory'] * 1024 * 1024 * 1024
 
@@ -2407,7 +2405,7 @@ class OSSelectionView(ui.View):
                     image,
                     detach=True,
                     privileged=True,
-                    hostname=f"unixnodes-{self.vps_id}",
+                    hostname=f"ULTRA CLOUD-{self.vps_id}",
                     mem_limit=memory_bytes,
                     cpu_period=100000,
                     cpu_quota=int(vps['cpu'] * 100000),
@@ -2416,7 +2414,7 @@ class OSSelectionView(ui.View):
                     tty=True,
                     network=DOCKER_NETWORK,
                     volumes={
-                        f'unixnodes-{self.vps_id}': {'bind': '/data', 'mode': 'rw'}
+                        f'ULTRA CLOUD-{self.vps_id}': {'bind': '/data', 'mode': 'rw'}
                     }
                 )
             except docker.errors.ImageNotFound:
@@ -2425,7 +2423,7 @@ class OSSelectionView(ui.View):
                     DEFAULT_OS_IMAGE,
                     detach=True,
                     privileged=True,
-                    hostname=f"unixnodes-{self.vps_id}",
+                    hostname=f"ULTRA CLOUD-{self.vps_id}",
                     mem_limit=memory_bytes,
                     cpu_period=100000,
                     cpu_quota=int(vps['cpu'] * 100000),
@@ -2434,7 +2432,7 @@ class OSSelectionView(ui.View):
                     tty=True,
                     network=DOCKER_NETWORK,
                     volumes={
-                        f'unixnodes-{self.vps_id}': {'bind': '/data', 'mode': 'rw'}
+                        f'ULTRA CLOUD-{self.vps_id}': {'bind': '/data', 'mode': 'rw'}
                     }
                 )
                 image = DEFAULT_OS_IMAGE
@@ -2474,9 +2472,9 @@ class OSSelectionView(ui.View):
                     # Send new SSH details to owner
                     try:
                         owner = await bot.fetch_user(int(vps["created_by"]))
-                        embed = discord.Embed(title=f"UnixNodes VPS Reinstalled - {self.vps_id}", color=discord.Color.blue())
+                        embed = discord.Embed(title=f"ULTRA CLOUD VPS Reinstalled - {self.vps_id}", color=discord.Color.blue())
                         embed.add_field(name="New OS", value=image, inline=True)
-                        embed.add_field(name="New SSH Session", value=f"```{ssh_session_line}```", inline=False)
+                        embed.add_field(name="New SSH Session", value=f"", inline=False)
                         embed.add_field(name="New SSH Password", value=f"||{ssh_password}||", inline=False)
                         await owner.send(embed=embed)
                     except:
@@ -2484,10 +2482,10 @@ class OSSelectionView(ui.View):
             except Exception as e:
                 logger.error(f"Warning: Failed to start tmate session: {e}")
 
-            await status_msg.edit(content="✅ UnixNodes VPS reinstalled successfully!")
+            await status_msg.edit(content="✅ ULTRA CLOUD VPS reinstalled successfully!")
             
             try:
-                embed = discord.Embed(title=f"UnixNodes VPS Management - {self.vps_id}", color=discord.Color.green())
+                embed = discord.Embed(title=f"ULTRA CLOUD VPS Management - {self.vps_id}", color=discord.Color.green())
                 embed.add_field(name="Status", value="🟢 Running", inline=True)
                 embed.add_field(name="Memory", value=f"{vps['memory']}GB", inline=True)
                 embed.add_field(name="CPU", value=f"{vps['cpu']} cores", inline=True)
@@ -2506,7 +2504,7 @@ class OSSelectionView(ui.View):
             except:
                 try:
                     channel = interaction.channel
-                    await channel.send(f"❌ Error reinstalling UnixNodes VPS {self.vps_id}: {str(e)}")
+                    await channel.send(f"❌ Error reinstalling ULTRA CLOUD VPS {self.vps_id}: {str(e)}")
                 except:
                     logger.error(f"Failed to send error message: {e}")
 
@@ -2575,10 +2573,10 @@ class TransferVPSModal(ui.Modal, title='Transfer VPS'):
 
             bot.db.update_vps(token, {"created_by": str(new_owner.id)})
 
-            await interaction.response.send_message(f"✅ UnixNodes VPS {self.vps_id} has been transferred from {old_owner_name} to {new_owner_name}!", ephemeral=True)
+            await interaction.response.send_message(f"✅ ULTRA CLOUD VPS {self.vps_id} has been transferred from {old_owner_name} to {new_owner_name}!", ephemeral=True)
             
             try:
-                embed = discord.Embed(title="UnixNodes VPS Transferred to You", color=discord.Color.green())
+                embed = discord.Embed(title="ULTRA CLOUD VPS Transferred to You", color=discord.Color.green())
                 embed.add_field(name="VPS ID", value=self.vps_id, inline=True)
                 embed.add_field(name="Previous Owner", value=old_owner_name, inline=True)
                 embed.add_field(name="Memory", value=f"{vps['memory']}GB", inline=True)
@@ -2615,7 +2613,7 @@ async def manage_vps(ctx, vps_id: str):
 
         status = vps['status'].capitalize()
 
-        embed = discord.Embed(title=f"UnixNodes VPS Management - {vps_id}", color=discord.Color.blue())
+        embed = discord.Embed(title=f"ULTRA CLOUD VPS Management - {vps_id}", color=discord.Color.blue())
         embed.add_field(name="Status", value=f"{status} (Container: {container_status})", inline=True)
         embed.add_field(name="Memory", value=f"{vps['memory']}GB", inline=True)
         embed.add_field(name="CPU", value=f"{vps['cpu']} cores", inline=True)
@@ -2657,10 +2655,10 @@ async def transfer_vps_command(ctx, vps_id: str, new_owner: discord.Member):
 
         bot.db.update_vps(token, {"created_by": str(new_owner.id)})
 
-        await ctx.send(f"✅ UnixNodes VPS {vps_id} has been transferred from {ctx.author.name} to {new_owner.name}!")
+        await ctx.send(f"✅ ULTRA CLOUD VPS {vps_id} has been transferred from {ctx.author.name} to {new_owner.name}!")
 
         try:
-            embed = discord.Embed(title="UnixNodes VPS Transferred to You", color=discord.Color.green())
+            embed = discord.Embed(title="ULTRA CLOUD VPS Transferred to You", color=discord.Color.green())
             embed.add_field(name="VPS ID", value=vps_id, inline=True)
             embed.add_field(name="Previous Owner", value=ctx.author.name, inline=True)
             embed.add_field(name="Memory", value=f"{vps['memory']}GB", inline=True)
@@ -2682,7 +2680,7 @@ async def on_command_error(ctx, error):
     if isinstance(error, commands.CheckFailure):
         await ctx.send("❌ You don't have permission to use this command!", ephemeral=True)
     elif isinstance(error, commands.CommandNotFound):
-        await ctx.send("❌ Command not found! Use `/help` to see available commands.", ephemeral=True)
+        await ctx.send("❌ Command not found! Use  to see available commands.", ephemeral=True)
     elif isinstance(error, commands.MissingRequiredArgument):
         await ctx.send(f"❌ Missing required argument: {error.param.name}", ephemeral=True)
     else:
@@ -2700,6 +2698,7 @@ if __name__ == "__main__":
     except Exception as e:
         logger.error(f"Bot crashed: {e}")
         traceback.print_exc()
+
 EOL
         echo "bot.py created with embedded code."
 
